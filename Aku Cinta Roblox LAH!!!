@@ -142,9 +142,16 @@ AutoFarmTab:AddToggle({
                 while autoSellActive do
                     local tycoon = workspace:FindFirstChild(game.Players.LocalPlayer.Name .. "'s Tycoon")
                     if tycoon then
-                        local button = tycoon.Tycoon.Machines.Seller.ButtonPodium:FindFirstChild("ButtonEvent")
-                        if button and tycoon.Tycoon.Machines.Seller.Storage.Value >= 20 then
-                            button:FireServer()
+                        local seller = tycoon.Tycoon.Machines.Seller
+                        local button = seller.ButtonPodium:FindFirstChild("ButtonEvent")
+                        local storageValue = seller.Storage.Value
+                        
+                        -- Check if storage is full (20/20)
+                        if storageValue >= 20 then
+                            button:FireServer() -- Sell the items
+                            showNotification("Auto Sell", "Items Sold! Current Storage: " .. storageValue .. "/20")
+                        else
+                            print("Storage not full. Current Storage: " .. storageValue .. "/20")
                         end
                     end
                     wait(0.5) -- Set delay to 0.5 seconds
