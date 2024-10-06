@@ -79,10 +79,10 @@ AutoFarmTab:AddToggle({
     Callback = function(Value)
         autoMergeEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Merge Miners", "Enabled")
+            showNotification("Auto Farm Loaded", "Auto Merge Miners Enabled")
             print("Auto Merge Miners Enabled")
             while autoMergeEnabled do
-                wait(1) -- Adjust the wait time as needed
+                wait(0.5) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("RequestMerge"):InvokeServer()
                 end)
@@ -91,7 +91,7 @@ AutoFarmTab:AddToggle({
                 end
             end
         else
-            showNotification("Auto Merge Miners", "Disabled")
+            showNotification("Auto Farm Loaded", "Auto Merge Miners Disabled")
             print("Auto Merge Miners Disabled")
         end
     end    
@@ -104,10 +104,10 @@ AutoFarmTab:AddToggle({
     Callback = function(Value)
         autoProspectEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Prospect Ore", "Enabled")
+            showNotification("Auto Farm Loaded", "Auto Prospect Ore Enabled")
             print("Auto Prospect Ore Enabled")
             while autoProspectEnabled do
-                wait(1) -- Adjust the wait time as needed
+                wait(0.5) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Prospector"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -116,7 +116,7 @@ AutoFarmTab:AddToggle({
                 end
             end
         else
-            showNotification("Auto Prospect Ore", "Disabled")
+            showNotification("Auto Farm Loaded", "Auto Prospect Ore Disabled")
             print("Auto Prospect Ore Disabled")
         end
     end    
@@ -129,10 +129,10 @@ AutoFarmTab:AddToggle({
     Callback = function(Value)
         autoOpenForgeEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Open Forge Door", "Enabled")
+            showNotification("Auto Farm Loaded", "Auto Open Forge Door Enabled")
             print("Auto Open Forge Door Enabled")
             while autoOpenForgeEnabled do
-                wait(1) -- Adjust the wait time as needed
+                wait(0.5) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Forge"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -141,7 +141,7 @@ AutoFarmTab:AddToggle({
                 end
             end
         else
-            showNotification("Auto Open Forge Door", "Disabled")
+            showNotification("Auto Farm Loaded", "Auto Open Forge Door Disabled")
             print("Auto Open Forge Door Disabled")
         end
     end    
@@ -154,10 +154,10 @@ AutoFarmTab:AddToggle({
     Callback = function(Value)
         autoSellEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Sell", "Enabled")
+            showNotification("Auto Farm Loaded", "Auto Sell Enable")
             print("Auto Sell Enabled")
             while autoSellEnabled do
-                wait(1) -- Adjust the wait time as needed
+                wait(6) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Seller"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -166,7 +166,7 @@ AutoFarmTab:AddToggle({
                 end
             end
         else
-            showNotification("Auto Sell", "Disabled")
+            showNotification("Auto Farm Loaded", "Auto Sell Disabled")
             print("Auto Sell Disabled")
         end
     end    
