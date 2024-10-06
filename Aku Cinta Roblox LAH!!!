@@ -1,0 +1,159 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Mining Simulator Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+-- Miner Tab
+local MinerTab = Window:MakeTab({
+    Name = "Miner",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Function to Purchase Miners
+local function purchaseMiners(quantity)
+    local success, errorMessage = pcall(function()
+        local args = { [1] = quantity }
+        game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("PurchaseNodes"):InvokeServer(unpack(args))
+    end)
+    if success then
+        print("Successfully bought " .. quantity .. " Miner(s)!")
+    else
+        print("Failed to buy Miner(s)! Error: " .. errorMessage)
+    end
+end
+
+-- Buy 1 Miner Button
+MinerTab:AddButton({
+    Name = "Buy 1 Miner",
+    Callback = function()
+        purchaseMiners(1)
+    end    
+})
+
+-- Buy 5 Miners Button
+MinerTab:AddButton({
+    Name = "Buy 5 Miners",
+    Callback = function()
+        purchaseMiners(5)
+    end    
+})
+
+-- Auto Farm Tab
+local AutoFarmTab = Window:MakeTab({
+    Name = "Auto Farm",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Function to Show Notifications
+local function showNotification(title, content)
+    OrionLib:MakeNotification({
+        Name = title,
+        Content = content,
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+end
+
+-- Toggle for Auto Merge Miners
+local autoMergeActive = false
+AutoFarmTab:AddToggle({
+    Name = "Auto Merge Miners",
+    Default = false,
+    Callback = function(Value)
+        autoMergeActive = Value
+        if Value then
+            showNotification("Auto Merge Miners", "Auto Merge Miners Enabled")
+            spawn(function()
+                while autoMergeActive do
+                    game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("RequestMerge"):InvokeServer()
+                    wait(0.5) -- Set delay to 0.5 seconds
+                end
+            end)
+        else
+            showNotification("Auto Merge Miners", "Auto Merge Miners Disabled")
+        end
+    end    
+})
+
+-- Toggle for Auto Prospect Ore
+local autoProspectActive = false
+AutoFarmTab:AddToggle({
+    Name = "Auto Prospect Ore",
+    Default = false,
+    Callback = function(Value)
+        autoProspectActive = Value
+        if Value then
+            showNotification("Auto Prospect Ore", "Auto Prospect Ore Enabled")
+            spawn(function()
+                while autoProspectActive do
+                    local tycoon = workspace:FindFirstChild(game.Players.LocalPlayer.Name .. "'s Tycoon")
+                    if tycoon then
+                        local button = tycoon.Tycoon.Machines.Prospector.ButtonPodium:FindFirstChild("ButtonEvent")
+                        if button then
+                            button:FireServer()
+                        end
+                    end
+                    wait(0.5) -- Set delay to 0.5 seconds
+                end
+            end)
+        else
+            showNotification("Auto Prospect Ore", "Auto Prospect Ore Disabled")
+        end
+    end    
+})
+
+-- Toggle for Auto Open Forge Door
+local autoOpenForgeActive = false
+AutoFarmTab:AddToggle({
+    Name = "Auto Open Forge Door",
+    Default = false,
+    Callback = function(Value)
+        autoOpenForgeActive = Value
+        if Value then
+            showNotification("Auto Open Forge Door", "Auto Open Forge Door Enabled")
+            spawn(function()
+                while autoOpenForgeActive do
+                    local tycoon = workspace:FindFirstChild(game.Players.LocalPlayer.Name .. "'s Tycoon")
+                    if tycoon then
+                        local button = tycoon.Tycoon.Machines.Forge.ButtonPodium:FindFirstChild("ButtonEvent")
+                        if button then
+                            button:FireServer()
+                        end
+                    end
+                    wait(0.5) -- Set delay to 0.5 seconds
+                end
+            end)
+        else
+            showNotification("Auto Open Forge Door", "Auto Open Forge Door Disabled")
+        end
+    end    
+})
+
+-- Toggle for Auto Sell
+local autoSellActive = false
+AutoFarmTab:AddToggle({
+    Name = "Auto Sell",
+    Default = false,
+    Callback = function(Value)
+        autoSellActive = Value
+        if Value then
+            showNotification("Auto Sell", "Auto Sell Enabled")
+            spawn(function()
+                while autoSellActive do
+                    local tycoon = workspace:FindFirstChild(game.Players.LocalPlayer.Name .. "'s Tycoon")
+                    if tycoon then
+                        local button = tycoon.Tycoon.Machines.Seller.ButtonPodium:FindFirstChild("ButtonEvent")
+                        if button and tycoon.Tycoon.Machines.Seller.Storage.Value >= 20 then
+                            button:FireServer()
+                        end
+                    end
+                    wait(0.5) -- Set delay to 0.5 seconds
+                end
+            end)
+        else
+            showNotification("Auto Sell", "Auto Sell Disabled")
+        end
+    end    
+})
+
+OrionLib:Init()
