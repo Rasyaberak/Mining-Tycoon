@@ -1,5 +1,11 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local Window = OrionLib:MakeWindow({Name = "Mining Simulator Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+-- Get the player's name dynamically
+local playerName = LocalPlayer.Name
 
 -- Miner Tab
 local MinerTab = Window:MakeTab({
@@ -10,10 +16,16 @@ local MinerTab = Window:MakeTab({
 
 -- Function to Purchase Miners
 local function purchaseMiners(quantity)
+    if quantity < 1 then
+        print("Invalid quantity! Cannot buy less than 1 miner.")
+        return
+    end
+
     local success, errorMessage = pcall(function()
         local args = { [1] = quantity }
         game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("PurchaseNodes"):InvokeServer(unpack(args))
     end)
+
     if success then
         print("Successfully bought " .. quantity .. " Miner(s)!")
     else
@@ -25,7 +37,7 @@ end
 MinerTab:AddButton({
     Name = "Buy 1 Miner",
     Callback = function()
-        purchaseMiners(1)
+        purchaseMiners(1) -- Buy 1 Miner
     end    
 })
 
@@ -33,7 +45,7 @@ MinerTab:AddButton({
 MinerTab:AddButton({
     Name = "Buy 5 Miners",
     Callback = function()
-        purchaseMiners(5)
+        purchaseMiners(5) -- Buy 5 Miners
     end    
 })
 
@@ -44,7 +56,13 @@ local AutoFarmTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- Function to Show Notifications
+-- Local variables for toggle states
+local autoMergeEnabled = false
+local autoProspectEnabled = false
+local autoOpenForgeEnabled = false
+local autoSellEnabled = false
+
+-- Function to show notification
 local function showNotification(title, content)
     OrionLib:MakeNotification({
         Name = title,
@@ -54,111 +72,102 @@ local function showNotification(title, content)
     })
 end
 
--- Toggle for Auto Merge Miners
-local autoMergeActive = false
+-- Auto Merge Miners Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Merge Miners",
     Default = false,
     Callback = function(Value)
-        autoMergeActive = Value
+        autoMergeEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Merge Miners", "Auto Merge Miners Enabled")
-            spawn(function()
-                while autoMergeActive do
+            showNotification("Auto Merge Miners", "Enabled")
+            print("Auto Merge Miners Enabled")
+            while autoMergeEnabled do
+                wait(1) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
                     game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("RequestMerge"):InvokeServer()
-                    wait(0.5) -- Set delay to 0.5 seconds
+                end)
+                if not success then
+                    print("Auto Merge Miners failed! Error: " .. errorMessage)
                 end
-            end)
+            end
         else
-            showNotification("Auto Merge Miners", "Auto Merge Miners Disabled")
+            showNotification("Auto Merge Miners", "Disabled")
+            print("Auto Merge Miners Disabled")
         end
     end    
 })
 
--- Toggle for Auto Prospect Ore
-local autoProspectActive = false
+-- Auto Prospect Ore Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Prospect Ore",
     Default = false,
     Callback = function(Value)
-        autoProspectActive = Value
+        autoProspectEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Prospect Ore", "Auto Prospect Ore Enabled")
-            spawn(function()
-                while autoProspectActive do
-                    local tycoon = workspace:FindFirstChild(game.Players.LocalPlayer.Name .. "'s Tycoon")
-                    if tycoon then
-                        local button = tycoon.Tycoon.Machines.Prospector.ButtonPodium:FindFirstChild("ButtonEvent")
-                        if button then
-                            button:FireServer()
-                        end
-                    end
-                    wait(0.5) -- Set delay to 0.5 seconds
+            showNotification("Auto Prospect Ore", "Enabled")
+            print("Auto Prospect Ore Enabled")
+            while autoProspectEnabled do
+                wait(1) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
+                    workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Prospector"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
+                end)
+                if not success then
+                    print("Auto Prospect Ore failed! Error: " .. errorMessage)
                 end
-            end)
+            end
         else
-            showNotification("Auto Prospect Ore", "Auto Prospect Ore Disabled")
+            showNotification("Auto Prospect Ore", "Disabled")
+            print("Auto Prospect Ore Disabled")
         end
     end    
 })
 
--- Toggle for Auto Open Forge Door
-local autoOpenForgeActive = false
+-- Auto Open Forge Door Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Open Forge Door",
     Default = false,
     Callback = function(Value)
-        autoOpenForgeActive = Value
+        autoOpenForgeEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Open Forge Door", "Auto Open Forge Door Enabled")
-            spawn(function()
-                while autoOpenForgeActive do
-                    local tycoon = workspace:FindFirstChild(game.Players.LocalPlayer.Name .. "'s Tycoon")
-                    if tycoon then
-                        local button = tycoon.Tycoon.Machines.Forge.ButtonPodium:FindFirstChild("ButtonEvent")
-                        if button then
-                            button:FireServer()
-                        end
-                    end
-                    wait(0.5) -- Set delay to 0.5 seconds
+            showNotification("Auto Open Forge Door", "Enabled")
+            print("Auto Open Forge Door Enabled")
+            while autoOpenForgeEnabled do
+                wait(1) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
+                    workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Forge"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
+                end)
+                if not success then
+                    print("Auto Open Forge Door failed! Error: " .. errorMessage)
                 end
-            end)
+            end
         else
-            showNotification("Auto Open Forge Door", "Auto Open Forge Door Disabled")
+            showNotification("Auto Open Forge Door", "Disabled")
+            print("Auto Open Forge Door Disabled")
         end
     end    
 })
 
--- Toggle for Auto Sell
-local autoSellActive = false
+-- Auto Sell Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Sell",
     Default = false,
     Callback = function(Value)
-        autoSellActive = Value
+        autoSellEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Sell", "Auto Sell Enabled")
-            spawn(function()
-                while autoSellActive do
-                    local tycoon = workspace:FindFirstChild(game.Players.LocalPlayer.Name .. "'s Tycoon")
-                    if tycoon then
-                        local seller = tycoon.Tycoon.Machines.Seller
-                        local button = seller.ButtonPodium:FindFirstChild("ButtonEvent")
-                        local storageValue = seller.Storage.Value
-                        
-                        -- Check if storage is full (20/20)
-                        if storageValue >= 20 then
-                            button:FireServer() -- Sell the items
-                            showNotification("Auto Sell", "Items Sold! Current Storage: " .. storageValue .. "/20")
-                        else
-                            print("Storage not full. Current Storage: " .. storageValue .. "/20")
-                        end
-                    end
-                    wait(0.5) -- Set delay to 0.5 seconds
+            showNotification("Auto Sell", "Enabled")
+            print("Auto Sell Enabled")
+            while autoSellEnabled do
+                wait(1) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
+                    workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Seller"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
+                end)
+                if not success then
+                    print("Auto Sell failed! Error: " .. errorMessage)
                 end
-            end)
+            end
         else
-            showNotification("Auto Sell", "Auto Sell Disabled")
+            showNotification("Auto Sell", "Disabled")
+            print("Auto Sell Disabled")
         end
     end    
 })
