@@ -216,7 +216,7 @@ end
 
 -- Define upgrades with their display names and max levels
 local upgrades = {
-    { "ProspectorCapacity", "Upgrade Prospector Capacity", 7 },
+    { "ProspectorCapacity", "Upgrade Prospector Capacity", 9 },
     { "ProspectorSpeed", "Upgrade Prospector Speed", 10 },
     { "ProspectorStackSize", "Upgrade Prospector Stack Size", 4 },
     { "DoorOpenTime", "Upgrade Door Open Time", 8 },
