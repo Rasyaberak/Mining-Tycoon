@@ -179,4 +179,93 @@ local SpinTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+-- Upgrade Tab
+local UpgradeTab = Window:MakeTab({
+    Name = "Upgrade",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Function to purchase an upgrade
+local function purchaseUpgrade(upgradeName)
+    local args = { [1] = upgradeName }
+
+    -- Accessing the TycoonService for upgrade purchases
+    local purchaseUpgradeEvent = game:GetService("ReplicatedStorage")
+        :WaitForChild("Packages")
+        :WaitForChild("_Index")
+        :WaitForChild("supersocial_flux@0.0.2")
+        :WaitForChild("flux")
+        :WaitForChild("Services")
+        :WaitForChild("TycoonService")
+        :WaitForChild("RF")
+        :WaitForChild("PurchaseUpgrade")
+
+    -- Invoking the server event to purchase the upgrade
+    local success, err = pcall(function()
+        purchaseUpgradeEvent:InvokeServer(unpack(args))
+    end)
+
+    -- Provide feedback based on success or error
+    if success then
+        UpgradeTab:AddLabel({
+            Name = upgradeName .. " upgraded successfully!",
+            TextColor = Color3.new(0, 1, 0)  -- Green for success
+        })
+    else
+        UpgradeTab:AddLabel({
+            Name = "Failed to upgrade " .. upgradeName .. ": " .. err,
+            TextColor = Color3.new(1, 0, 0)  -- Red for error
+        })
+    end
+end
+
+-- Define upgrades and their display names
+local upgrades = {
+    { "ProspectorCapacity", "Upgrade Prospector Capacity" },
+    { "ProspectorSpeed", "Upgrade Prospector Speed" },
+    { "ProspectorStackSize", "Upgrade Prospector Stack Size" },
+    { "DoorOpenTime", "Upgrade Door Open Time" },
+    { "SellerLoadSpeed", "Upgrade Seller Load Speed" },
+}
+
+-- Adding buttons for each upgrade
+for _, upgrade in ipairs(upgrades) do
+    local upgradeName, displayName = upgrade[1], upgrade[2]
+
+    UpgradeTab:AddButton({
+        Name = displayName,
+        Callback = function()
+            purchaseUpgrade(upgradeName)
+        end    
+    })
+end
+
+-- Optional UI elements
+UpgradeTab:AddLabel({
+    Name = "Choose an upgrade to enhance your gameplay!",
+})
+
+-- Example of additional functionality: Upgrade Status Tracker
+local upgradeStatus = {}
+
+local function updateUpgradeStatus()
+    for _, upgrade in ipairs(upgrades) do
+        local upgradeName = upgrade[1]
+        upgradeStatus[upgradeName] = "Available"  -- Placeholder; you can update this based on your game logic
+    end
+end
+
+-- Call this function to initialize or refresh the upgrade status
+updateUpgradeStatus()
+
+-- Example of displaying upgrade status
+for _, upgrade in ipairs(upgrades) do
+    local upgradeName = upgrade[1]
+    UpgradeTab:AddLabel({
+        Name = upgradeName .. ": " .. upgradeStatus[upgradeName],
+        TextColor = Color3.new(1, 1, 0)  -- Yellow for status
+    })
+end
+
 OrionLib:Init()
