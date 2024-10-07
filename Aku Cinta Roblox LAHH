@@ -187,7 +187,16 @@ local UpgradeTab = Window:MakeTab({
 })
 
 -- Function to purchase an upgrade
-local function purchaseUpgrade(upgradeName)
+local function purchaseUpgrade(upgradeName, maxLevel)
+    -- Check the current level of the upgrade (this is a placeholder, adjust as necessary)
+    local currentLevel = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("GetUpgradeLevel"):InvokeServer(upgradeName)
+    
+    -- Check if the current level is at maximum
+    if currentLevel >= maxLevel then
+        showNotification(upgradeName .. " MAX! You can't buy any more!!")
+        return
+    end
+
     local args = { [1] = upgradeName }
 
     -- Accessing the TycoonService for upgrade purchases
@@ -202,69 +211,27 @@ local function purchaseUpgrade(upgradeName)
         :WaitForChild("PurchaseUpgrade")
 
     -- Invoking the server event to purchase the upgrade
-    local success, err = pcall(function()
-        purchaseUpgradeEvent:InvokeServer(unpack(args))
-    end)
-
-    -- Provide feedback based on success or error
-    if success then
-        UpgradeTab:AddLabel({
-            Name = upgradeName .. " upgraded successfully!",
-            TextColor = Color3.new(0, 1, 0)  -- Green for success
-        })
-    else
-        UpgradeTab:AddLabel({
-            Name = "Failed to upgrade " .. upgradeName .. ": " .. err,
-            TextColor = Color3.new(1, 0, 0)  -- Red for error
-        })
-    end
+    purchaseUpgradeEvent:InvokeServer(unpack(args))
 end
 
--- Define upgrades and their display names
+-- Define upgrades with their display names and max levels
 local upgrades = {
-    { "ProspectorCapacity", "Upgrade Prospector Capacity" },
-    { "ProspectorSpeed", "Upgrade Prospector Speed" },
-    { "ProspectorStackSize", "Upgrade Prospector Stack Size" },
-    { "DoorOpenTime", "Upgrade Door Open Time" },
-    { "SellerLoadSpeed", "Upgrade Seller Load Speed" },
+    { "ProspectorCapacity", "Upgrade Prospector Capacity", 7 },
+    { "ProspectorSpeed", "Upgrade Prospector Speed", 10 },
+    { "ProspectorStackSize", "Upgrade Prospector Stack Size", 4 },
+    { "DoorOpenTime", "Upgrade Door Open Time", 8 },
+    { "SellerLoadSpeed", "Upgrade Seller Load Speed", 10 },
 }
 
 -- Adding buttons for each upgrade
 for _, upgrade in ipairs(upgrades) do
-    local upgradeName, displayName = upgrade[1], upgrade[2]
+    local upgradeName, displayName, maxLevel = upgrade[1], upgrade[2], upgrade[3]
 
     UpgradeTab:AddButton({
         Name = displayName,
         Callback = function()
-            purchaseUpgrade(upgradeName)
+            purchaseUpgrade(upgradeName, maxLevel)
         end    
-    })
-end
-
--- Optional UI elements
-UpgradeTab:AddLabel({
-    Name = "Choose an upgrade to enhance your gameplay!",
-})
-
--- Example of additional functionality: Upgrade Status Tracker
-local upgradeStatus = {}
-
-local function updateUpgradeStatus()
-    for _, upgrade in ipairs(upgrades) do
-        local upgradeName = upgrade[1]
-        upgradeStatus[upgradeName] = "Available"  -- Placeholder; you can update this based on your game logic
-    end
-end
-
--- Call this function to initialize or refresh the upgrade status
-updateUpgradeStatus()
-
--- Example of displaying upgrade status
-for _, upgrade in ipairs(upgrades) do
-    local upgradeName = upgrade[1]
-    UpgradeTab:AddLabel({
-        Name = upgradeName .. ": " .. upgradeStatus[upgradeName],
-        TextColor = Color3.new(1, 1, 0)  -- Yellow for status
     })
 end
 
