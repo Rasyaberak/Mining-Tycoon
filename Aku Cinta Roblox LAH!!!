@@ -1,22 +1,8 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local DataStoreService = game:GetService("DataStoreService")
 
--- Define the Game ID
-local TARGET_GAME_ID = "18920893671"
-
--- Check if the current game ID matches the target game ID
-if tostring(game.PlaceId) ~= TARGET_GAME_ID then
-    -- Show a notification and terminate the script if the game ID does not match
-    local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-    OrionLib:MakeNotification({
-        Name = "Error",
-        Content = "This script can only be executed in the specified game.",
-        Image = "rbxassetid://4483345998",
-        Time = 5 -- Display for 5 seconds
-    })
-    return -- Stop execution of the script
-end
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Mining Tycoon Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
 
 -- Function to show notifications
 local function showNotification(title, content, time)
@@ -28,70 +14,15 @@ local function showNotification(title, content, time)
     })
 end
 
--- Show a notification when the script starts
-showNotification("Welcome to Mining Simulator Hub", "Enjoy your game!", 5)
+-- Check the game ID
+local expectedGameID = "18920893671"
+local currentGameID = tostring(game.GameId) -- Convert the game ID to a string
 
-local PositionDataStore = DataStoreService:GetDataStore("PlayerPositions")
-
--- Function to execute the code
-local function executeScript()
-    -- Load Orion Library
-    local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-    local Window = OrionLib:MakeWindow({Name = "Mining Simulator Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+if currentGameID == expectedGameID then
+    showNotification("Game ID Valid", "You are in the correct game! The script will now execute.", 5)
+    wait(2)
     
-    -- Restore player's position
-    local function restorePosition()
-        local success, position = pcall(function()
-            return PositionDataStore:GetAsync(LocalPlayer.UserId)
-        end)
-
-        if success and position then
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position)
-            end
-        else
-            warn("Failed to restore position: " .. (position or "unknown error"))
-        end
-    end
-
-    -- Save player's position
-    local function savePosition()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local position = LocalPlayer.Character.HumanoidRootPart.Position
-            local success, err = pcall(function()
-                PositionDataStore:SetAsync(LocalPlayer.UserId, position)
-            end)
-
-            if not success then
-                warn("Failed to save position: " .. err)
-            end
-        end
-    end
-
-    -- Connect saving the position when the player leaves the game
-    Players.PlayerRemoving:Connect(savePosition)
-
-    -- Restore the position when the script runs
-    restorePosition()
-end
-
--- Ensure the script runs when the player joins the game
-Players.PlayerAdded:Connect(function(player)
-    if player == LocalPlayer then
-        -- Wait until the character is fully loaded
-        player.CharacterAdded:Wait()
-        executeScript()
-    end
-end)
-
--- Ensure the script runs if the player is already in the game
-if LocalPlayer then
-    -- Wait until the character is fully loaded
-    LocalPlayer.CharacterAdded:Wait()
-    executeScript()
-end
-
--- Get the player's name dynamically
+    -- Get the player's name dynamically
 local playerName = LocalPlayer.Name
 
 -- Miner Tab
@@ -318,3 +249,8 @@ local SpinTab = Window:MakeTab({
 })
 
 OrionLib:Init()
+
+else
+    showNotification("Invalid Game", "This script can only be executed in Mining Tycoon.", 5)
+    return -- Exit the script if the game ID does not match
+end
