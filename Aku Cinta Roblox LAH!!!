@@ -2,17 +2,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "Mining Tycoon Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
-
--- Function to show notifications
-local function showNotification(title, content, time)
-    OrionLib:MakeNotification({
-        Name = title,
-        Content = content,
-        Image = "rbxassetid://4483345998",
-        Time = time or 5 -- Default to 5 seconds
-    })
-end
+local Window = OrionLib:MakeWindow({Name = "Mining Simulator Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
 
 -- Get the player's name dynamically
 local playerName = LocalPlayer.Name
@@ -66,172 +56,121 @@ local AutoFarmTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-local Players = game:GetService("Players")
-local DataStoreService = game:GetService("DataStoreService")
-
--- DataStore for saving toggle states
-local playerDataStore = DataStoreService:GetDataStore("AutoFarmData")
-
--- Local variables for toggle states
+-- Local variables for toggle states AutoFarm
 local autoMergeEnabled = false
 local autoProspectEnabled = false
 local autoOpenForgeEnabled = false
 local autoSellEnabled = false
 
--- Settings for wait times (adjust as needed)
-local waitTimes = {
-    AutoMerge = 0.5,
-    AutoProspect = 0.1,
-    AutoOpenForge = 0.5,
-    AutoSell = 0.5,
-}
-
--- Player instance
-local player = Players.LocalPlayer
-
--- Function to safely perform actions with error handling
-local function performAction(actionFunc, actionName)
-    local success, errorMessage = pcall(actionFunc)
-    if not success then
-        print(actionName .. " failed! Error: " .. errorMessage)
-        showNotification("Error", actionName .. " failed! Check console for details.", 5)
-    end
+-- Function to show notification
+local function showNotification(title, content)
+    OrionLib:MakeNotification({
+        Name = title,
+        Content = content,
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
 end
 
--- Define action functions for auto-farming features
-local function requestMerge()
-    performAction(function()
-        ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2")
-            :WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF")
-            :WaitForChild("RequestMerge"):InvokeServer()
-    end, "Auto Merge Miners")
-end
-
-local function prospectOre()
-    local tycoonPath = Workspace:WaitForChild(player.Name .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines")
-    performAction(function()
-        tycoonPath:WaitForChild("Prospector"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
-    end, "Auto Prospect Ore")
-end
-
-local function openForgeDoor()
-    local tycoonPath = Workspace:WaitForChild(player.Name .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines")
-    performAction(function()
-        tycoonPath:WaitForChild("Forge"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
-    end, "Auto Open Forge Door")
-end
-
-local function sellItems()
-    local tycoonPath = Workspace:WaitForChild(player.Name .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines")
-    performAction(function()
-        tycoonPath:WaitForChild("Seller"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
-    end, "Auto Sell")
-end
-
--- Function to handle toggle logic for each feature
-local function handleToggle(isEnabled, actionFunc, actionName, waitTime)
-    if isEnabled then
-        showNotification("Auto Farm Loaded", actionName .. " Enabled", 5)
-        print(actionName .. " Enabled")
-        coroutine.wrap(function()
-            while isEnabled do
-                wait(waitTime)
-                performAction(actionFunc, actionName)
-            end
-        end)() -- Start the coroutine
-    else
-        showNotification("Auto Farm Loaded", actionName .. " Disabled", 5)
-        print(actionName .. " Disabled")
-    end
-end
-
--- Load toggle states from DataStore
-local function loadToggleStates()
-    local success, data = pcall(function()
-        return playerDataStore:GetAsync(player.UserId)
-    end)
-    if success and data then
-        autoMergeEnabled = data.autoMergeEnabled or false
-        autoProspectEnabled = data.autoProspectEnabled or false
-        autoOpenForgeEnabled = data.autoOpenForgeEnabled or false
-        autoSellEnabled = data.autoSellEnabled or false
-        
-        -- Automatically enable features if they were saved as enabled
-        handleToggle(autoMergeEnabled, requestMerge, "Auto Merge Miners", waitTimes.AutoMerge)
-        handleToggle(autoProspectEnabled, prospectOre, "Auto Prospect Ore", waitTimes.AutoProspect)
-        handleToggle(autoOpenForgeEnabled, openForgeDoor, "Auto Open Forge Door", waitTimes.AutoOpenForge)
-        handleToggle(autoSellEnabled, sellItems, "Auto Sell", waitTimes.AutoSell)
-    end
-end
-
--- Save toggle states to DataStore
-local function saveToggleStates()
-    local data = {
-        autoMergeEnabled = autoMergeEnabled,
-        autoProspectEnabled = autoProspectEnabled,
-        autoOpenForgeEnabled = autoOpenForgeEnabled,
-        autoSellEnabled = autoSellEnabled,
-    }
-    local success, errorMessage = pcall(function()
-        playerDataStore:SetAsync(player.UserId, data)
-    end)
-    if not success then
-        print("Failed to save toggle states: " .. errorMessage)
-    end
-end
-
--- Add toggles for each farming feature
+-- Auto Merge Miners Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Merge Miners",
-    Default = autoMergeEnabled,
+    Default = false,
     Callback = function(Value)
-        autoMergeEnabled = Value
-        handleToggle(autoMergeEnabled, requestMerge, "Auto Merge Miners", waitTimes.AutoMerge)
-        saveToggleStates() -- Save state on toggle change
+        autoMergeEnabled = Value -- Update local variable
+        if Value then
+            showNotification("Auto Farm Loaded", "Auto Merge Miners Enabled")
+            print("Auto Merge Miners Enabled")
+            while autoMergeEnabled do
+                wait(0.5) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("RequestMerge"):InvokeServer()
+                end)
+                if not success then
+                    print("Auto Merge Miners failed! Error: " .. errorMessage)
+                end
+            end
+        else
+            showNotification("Auto Farm Loaded", "Auto Merge Miners Disabled")
+            print("Auto Merge Miners Disabled")
+        end
     end    
 })
 
+-- Auto Prospect Ore Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Prospect Ore",
-    Default = autoProspectEnabled,
+    Default = false,
     Callback = function(Value)
-        autoProspectEnabled = Value
-        handleToggle(autoProspectEnabled, prospectOre, "Auto Prospect Ore", waitTimes.AutoProspect)
-        saveToggleStates() -- Save state on toggle change
+        autoProspectEnabled = Value -- Update local variable
+        if Value then
+            showNotification("Auto Farm Loaded", "Auto Prospect Ore Enabled")
+            print("Auto Prospect Ore Enabled")
+            while autoProspectEnabled do
+                wait(0.1) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
+                    workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Prospector"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
+                end)
+                if not success then
+                    print("Auto Prospect Ore failed! Error: " .. errorMessage)
+                end
+            end
+        else
+            showNotification("Auto Farm Loaded", "Auto Prospect Ore Disabled")
+            print("Auto Prospect Ore Disabled")
+        end
     end    
 })
 
+-- Auto Open Forge Door Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Open Forge Door",
-    Default = autoOpenForgeEnabled,
+    Default = false,
     Callback = function(Value)
-        autoOpenForgeEnabled = Value
-        handleToggle(autoOpenForgeEnabled, openForgeDoor, "Auto Open Forge Door", waitTimes.AutoOpenForge)
-        saveToggleStates() -- Save state on toggle change
+        autoOpenForgeEnabled = Value -- Update local variable
+        if Value then
+            showNotification("Auto Farm Loaded", "Auto Open Forge Door Enabled")
+            print("Auto Open Forge Door Enabled")
+            while autoOpenForgeEnabled do
+                wait(0.5) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
+                    workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Forge"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
+                end)
+                if not success then
+                    print("Auto Open Forge Door failed! Error: " .. errorMessage)
+                end
+            end
+        else
+            showNotification("Auto Farm Loaded", "Auto Open Forge Door Disabled")
+            print("Auto Open Forge Door Disabled")
+        end
     end    
 })
 
+-- Auto Sell Toggle
 AutoFarmTab:AddToggle({
     Name = "Auto Sell",
-    Default = autoSellEnabled,
+    Default = false,
     Callback = function(Value)
-        autoSellEnabled = Value
-        handleToggle(autoSellEnabled, sellItems, "Auto Sell", waitTimes.AutoSell)
-        saveToggleStates() -- Save state on toggle change
+        autoSellEnabled = Value -- Update local variable
+        if Value then
+            showNotification("Auto Farm Loaded", "Auto Sell Enabled")
+            print("Auto Sell Enabled")
+            while autoSellEnabled do
+                wait(0.5) -- Adjust the wait time as needed
+                local success, errorMessage = pcall(function()
+                    workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Seller"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
+                end)
+                if not success then
+                    print("Auto Sell failed! Error: " .. errorMessage)
+                end
+            end
+        else
+            showNotification("Auto Farm Loaded", "Auto Sell Disabled")
+            print("Auto Sell Disabled")
+        end
     end    
 })
-
--- Load toggle states when the player enters the game
-loadToggleStates()
-
--- Cleanup logic when the player leaves the game
-game.Players.PlayerRemoving:Connect(function()
-    saveToggleStates() -- Save toggle states when leaving
-    print("Auto Farm toggles saved.")
-end)
 
 -- Spin Tab
 local SpinTab = Window:MakeTab({
