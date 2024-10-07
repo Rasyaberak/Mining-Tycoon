@@ -56,7 +56,7 @@ local AutoFarmTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- Local variables for toggle states
+-- Local variables for toggle states AutoFarm
 local autoMergeEnabled = false
 local autoProspectEnabled = false
 local autoOpenForgeEnabled = false
@@ -82,7 +82,7 @@ AutoFarmTab:AddToggle({
             showNotification("Auto Farm Loaded", "Auto Merge Miners Enabled")
             print("Auto Merge Miners Enabled")
             while autoMergeEnabled do
-                wait(0.5) -- Adjust the wait time as needed
+                wait(1) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("RequestMerge"):InvokeServer()
                 end)
@@ -107,7 +107,7 @@ AutoFarmTab:AddToggle({
             showNotification("Auto Farm Loaded", "Auto Prospect Ore Enabled")
             print("Auto Prospect Ore Enabled")
             while autoProspectEnabled do
-                wait(0.5) -- Adjust the wait time as needed
+                wait(1) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Prospector"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -132,7 +132,7 @@ AutoFarmTab:AddToggle({
             showNotification("Auto Farm Loaded", "Auto Open Forge Door Enabled")
             print("Auto Open Forge Door Enabled")
             while autoOpenForgeEnabled do
-                wait(0.5) -- Adjust the wait time as needed
+                wait(1) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Forge"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -154,7 +154,7 @@ AutoFarmTab:AddToggle({
     Callback = function(Value)
         autoSellEnabled = Value -- Update local variable
         if Value then
-            showNotification("Auto Farm Loaded", "Auto Sell Enable")
+            showNotification("Auto Farm Loaded", "Auto Sell Enabled")
             print("Auto Sell Enabled")
             while autoSellEnabled do
                 wait(6) -- Adjust the wait time as needed
@@ -170,6 +170,98 @@ AutoFarmTab:AddToggle({
             print("Auto Sell Disabled")
         end
     end    
+})
+
+-- Other Tab
+local OtherTab = Window:MakeTab({
+    Name = "Other",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Local variables for toggle states Other
+local AntiLagEnabled = false
+local AntiDCEnabled = false
+
+-- Function to toggle Anti-Lag
+local function ToggleAntiLag(enabled)
+    if enabled then
+        -- Anti-Lag ON: Remove lag-inducing elements
+        for _, v in pairs(game.Workspace:GetDescendants()) do
+            -- Remove particles, decals, and excessive effects
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Decal") then
+                v:Destroy()
+            end
+        end
+        
+        -- Disable shadows and reduce quality
+        game.Lighting.GlobalShadows = false
+        game.Lighting.FogEnd = 100000
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        
+        showNotification("Other Loaded", "Anti-Lag Enabled")
+    else
+        -- Anti-Lag OFF: Restore normal performance
+        game.Lighting.GlobalShadows = true
+        game.Lighting.FogEnd = 1000
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+        
+        showNotification("Other Loaded", "Anti-Lag Disabled")
+    end
+end
+
+-- Toggle button for Anti-Lag
+OtherTab:AddToggle({
+    Name = "Anti Lag",
+    Default = false,
+    Callback = function(Value)
+        AntiLagEnabled = Value
+        ToggleAntiLag(AntiLagEnabled)
+    end
+})
+
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local idleInterval = 600 -- Set to 10 minutes (600 seconds)
+
+-- Function to prevent idle disconnect
+local function PreventDC()
+    if AntiDCEnabled then
+        -- Reset idle timer by simulating mouse movement or keyboard input
+        local virtualUser = game:GetService("VirtualUser")
+        virtualUser:CaptureController()
+        virtualUser:ClickButton2(Vector2.new()) -- Simulate a right-click to reset the timer
+
+        -- Optional: Slightly move the character if you want more activity simulation
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local humanoidRootPart = player.Character.HumanoidRootPart
+            humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 0.1) -- Small movement
+        end
+    end
+end
+
+-- Toggle for Anti-Disconnect
+OtherTab:AddToggle({
+    Name = "Anti-Disconnect",
+    Default = false,
+    Callback = function(Value)
+        AntiDCEnabled = Value
+        if AntiDCEnabled then
+            showNotification("Other Loaded", "Anti-Disconnect Enabled")
+            
+            -- Start Anti-Disconnect loop using a delay
+            spawn(function()
+                while AntiDCEnabled do
+                    PreventDC()
+                    wait(idleInterval) -- Wait for the specified interval (10 minutes) before simulating activity again
+                end
+            end)
+        else
+            showNotification("Other Loaded", "Anti-Disconnect Disabled")
+        end
+    end
 })
 
 OrionLib:Init()
