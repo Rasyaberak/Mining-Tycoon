@@ -1,34 +1,19 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "Mining Tycoon Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
-
--- Function to show notifications
-local function showNotification(title, content, time)
-    OrionLib:MakeNotification({
-        Name = title,
-        Content = content,
-        Image = "rbxassetid://4483345998",
-        Time = time or 5 -- Default to 5 seconds
-    })
+-- Ensure this script is only run in the correct game ID
+if game.GameId ~= 18920893671 then
+    error("This script can only be run in the game with ID 18920893671.")
 end
 
--- Check the game ID
-local expectedGameID = "18920893671"
-local currentGameID = tostring(game.GameId) -- Convert the game ID to a string
+-- Load the library for GUI
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+local Window = OrionLib:MakeWindow({
+    Name = "Miner Tycoon Script",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "OrionTest"
+})
 
-if currentGameID == expectedGameID then
-    showNotification("Game ID Valid", "You are in the correct game! The script will now execute.", 5)
-    wait(2)
-
-else
-    showNotification("Invalid Game", "This script can only be executed in Mining Tycoon.", 5)
-    return -- Exit the script if the game ID does not match
-end
-
-    -- Get the player's name dynamically
-local playerName = LocalPlayer.Name
+-- Get the player's name dynamically
+local playerName = game.Players.LocalPlayer.Name
 
 -- Miner Tab
 local MinerTab = Window:MakeTab({
@@ -110,7 +95,6 @@ local function performAction(actionFunc, actionName)
     local success, errorMessage = pcall(actionFunc)
     if not success then
         print(actionName .. " failed! Error: " .. errorMessage)
-        showNotification("Error", actionName .. " failed! Check console for details.", 5)
     end
 end
 
@@ -147,7 +131,6 @@ end
 -- Function to handle toggle logic for each feature
 local function handleToggle(isEnabled, actionFunc, actionName, waitTime)
     if isEnabled then
-        showNotification("Auto Farm Loaded", actionName .. " Enabled", 5)
         print(actionName .. " Enabled")
         coroutine.wrap(function()
             while isEnabled do
@@ -156,7 +139,6 @@ local function handleToggle(isEnabled, actionFunc, actionName, waitTime)
             end
         end)() -- Start the coroutine
     else
-        showNotification("Auto Farm Loaded", actionName .. " Disabled", 5)
         print(actionName .. " Disabled")
     end
 end
