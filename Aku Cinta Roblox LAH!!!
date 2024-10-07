@@ -82,7 +82,7 @@ AutoFarmTab:AddToggle({
             showNotification("Auto Farm Loaded", "Auto Merge Miners Enabled")
             print("Auto Merge Miners Enabled")
             while autoMergeEnabled do
-                wait(1) -- Adjust the wait time as needed
+                wait(0.5) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("RequestMerge"):InvokeServer()
                 end)
@@ -107,7 +107,7 @@ AutoFarmTab:AddToggle({
             showNotification("Auto Farm Loaded", "Auto Prospect Ore Enabled")
             print("Auto Prospect Ore Enabled")
             while autoProspectEnabled do
-                wait(1) -- Adjust the wait time as needed
+                wait(0.1) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Prospector"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -132,7 +132,7 @@ AutoFarmTab:AddToggle({
             showNotification("Auto Farm Loaded", "Auto Open Forge Door Enabled")
             print("Auto Open Forge Door Enabled")
             while autoOpenForgeEnabled do
-                wait(1) -- Adjust the wait time as needed
+                wait(0.5) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Forge"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -157,7 +157,7 @@ AutoFarmTab:AddToggle({
             showNotification("Auto Farm Loaded", "Auto Sell Enabled")
             print("Auto Sell Enabled")
             while autoSellEnabled do
-                wait(6) -- Adjust the wait time as needed
+                wait(0.5) -- Adjust the wait time as needed
                 local success, errorMessage = pcall(function()
                     workspace:WaitForChild(playerName .. "'s Tycoon"):WaitForChild("Tycoon"):WaitForChild("Machines"):WaitForChild("Seller"):WaitForChild("ButtonPodium"):WaitForChild("ButtonEvent"):FireServer()
                 end)
@@ -196,10 +196,16 @@ local function ToggleSmoothAntiLag(enabled)
             elseif v:IsA("MeshPart") then
                 v.RenderFidelity = Enum.RenderFidelity.Performance
             end
+            
+            -- Optionally reduce the size of models to lower lag
+            if v:IsA("Model") then
+                v:SetPrimaryPartCFrame(CFrame.new(0, 0, 0))
+                v:SetModelScale(Vector3.new(0.1, 0.1, 0.1)) -- Scale down models
+            end
         end
 
         settings().Rendering.QualityLevel = Enum.QualityLevel.Level02
-        print("Smooth Anti-Lag Activated")
+        showNotification("Other Loaded", "Anti-Lag Enabled")
     else
         game.Lighting.GlobalShadows = true
         game.Lighting.Brightness = 1
@@ -212,10 +218,16 @@ local function ToggleSmoothAntiLag(enabled)
             elseif v:IsA("MeshPart") then
                 v.RenderFidelity = Enum.RenderFidelity.Automatic
             end
+            
+            -- Restore the original size of models
+            if v:IsA("Model") then
+                v:SetPrimaryPartCFrame(CFrame.new(0, 0, 0))
+                v:SetModelScale(Vector3.new(1, 1, 1)) -- Restore original scale
+            end
         end
 
         settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
-        print("Smooth Anti-Lag Deactivated")
+        showNotification("Other Loaded", "Anti-Lag Disabled")
     end
 end
 
