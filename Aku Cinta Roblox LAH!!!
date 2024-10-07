@@ -1,6 +1,9 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Mining Tycoon Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
 -- Function to show notifications
 local function showNotification(title, content, time)
     OrionLib:MakeNotification({
@@ -18,10 +21,12 @@ local currentGameID = tostring(game.GameId) -- Convert the game ID to a string
 if currentGameID == expectedGameID then
     showNotification("Game ID Valid", "You are in the correct game! The script will now execute.", 5)
     wait(2)
-   
-   local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-   local Window = OrionLib:MakeWindow({Name = "Mining Tycoon Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
-    
+
+else
+    showNotification("Invalid Game", "This script can only be executed in Mining Tycoon.", 5)
+    return -- Exit the script if the game ID does not match
+end
+
     -- Get the player's name dynamically
 local playerName = LocalPlayer.Name
 
@@ -249,8 +254,3 @@ local SpinTab = Window:MakeTab({
 })
 
 OrionLib:Init()
-
-else
-    showNotification("Invalid Game", "This script can only be executed in Mining Tycoon.", 5)
-    return -- Exit the script if the game ID does not match
-end
