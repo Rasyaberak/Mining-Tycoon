@@ -183,40 +183,48 @@ local OtherTab = Window:MakeTab({
 local AntiLagEnabled = false
 local AntiDCEnabled = false
 
--- Function to toggle Anti-Lag
-local function ToggleAntiLag(enabled)
+local function ToggleSmoothAntiLag(enabled)
     if enabled then
-        -- Anti-Lag ON: Remove lag-inducing elements
+        game.Lighting.GlobalShadows = false
+        game.Lighting.Brightness = 2
+
         for _, v in pairs(game.Workspace:GetDescendants()) do
-            -- Remove particles, decals, and excessive effects
-            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Decal") then
-                v:Destroy()
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Enabled = false
+            elseif v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then
+                v.Enabled = false
+            elseif v:IsA("MeshPart") then
+                v.RenderFidelity = Enum.RenderFidelity.Performance
             end
         end
-        
-        -- Disable shadows and reduce quality
-        game.Lighting.GlobalShadows = false
-        game.Lighting.FogEnd = 100000
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-        
-        showNotification("Other Loaded", "Anti-Lag Enabled")
+
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level02
+        print("Smooth Anti-Lag Activated")
     else
-        -- Anti-Lag OFF: Restore normal performance
         game.Lighting.GlobalShadows = true
-        game.Lighting.FogEnd = 1000
+        game.Lighting.Brightness = 1
+
+        for _, v in pairs(game.Workspace:GetDescendants()) do
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Enabled = true
+            elseif v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then
+                v.Enabled = true
+            elseif v:IsA("MeshPart") then
+                v.RenderFidelity = Enum.RenderFidelity.Automatic
+            end
+        end
+
         settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
-        
-        showNotification("Other Loaded", "Anti-Lag Disabled")
+        print("Smooth Anti-Lag Deactivated")
     end
 end
 
--- Toggle button for Anti-Lag
 OtherTab:AddToggle({
     Name = "Anti Lag",
     Default = false,
     Callback = function(Value)
         AntiLagEnabled = Value
-        ToggleAntiLag(AntiLagEnabled)
+        ToggleSmoothAntiLag(AntiLagEnabled)
     end
 })
 
