@@ -187,16 +187,7 @@ local UpgradeTab = Window:MakeTab({
 })
 
 -- Function to purchase an upgrade
-local function purchaseUpgrade(upgradeName, maxLevel)
-    -- Check the current level of the upgrade (this is a placeholder, adjust as necessary)
-    local currentLevel = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("supersocial_flux@0.0.2"):WaitForChild("flux"):WaitForChild("Services"):WaitForChild("TycoonService"):WaitForChild("RF"):WaitForChild("GetUpgradeLevel"):InvokeServer(upgradeName)
-    
-    -- Check if the current level is at maximum
-    if currentLevel >= maxLevel then
-        showNotification(upgradeName .. " MAX! You can't buy any more!!")
-        return
-    end
-
+local function purchaseUpgrade(upgradeName)
     local args = { [1] = upgradeName }
 
     -- Accessing the TycoonService for upgrade purchases
@@ -214,23 +205,23 @@ local function purchaseUpgrade(upgradeName, maxLevel)
     purchaseUpgradeEvent:InvokeServer(unpack(args))
 end
 
--- Define upgrades with their display names and max levels
+-- Define upgrades and their display names
 local upgrades = {
-    { "ProspectorCapacity", "Upgrade Prospector Capacity", 9 },
-    { "ProspectorSpeed", "Upgrade Prospector Speed", 10 },
-    { "ProspectorStackSize", "Upgrade Prospector Stack Size", 4 },
-    { "DoorOpenTime", "Upgrade Door Open Time", 8 },
-    { "SellerLoadSpeed", "Upgrade Seller Load Speed", 10 },
+    { "ProspectorCapacity", "Upgrade Prospector Capacity" },
+    { "ProspectorSpeed", "Upgrade Prospector Speed" },
+    { "ProspectorStackSize", "Upgrade Prospector Stack Size" },
+    { "DoorOpenTime", "Upgrade Door Open Time" },
+    { "SellerLoadSpeed", "Upgrade Seller Load Speed" },
 }
 
 -- Adding buttons for each upgrade
 for _, upgrade in ipairs(upgrades) do
-    local upgradeName, displayName, maxLevel = upgrade[1], upgrade[2], upgrade[3]
+    local upgradeName, displayName = upgrade[1], upgrade[2]
 
     UpgradeTab:AddButton({
         Name = displayName,
         Callback = function()
-            purchaseUpgrade(upgradeName, maxLevel)
+            purchaseUpgrade(upgradeName)
         end    
     })
 end
